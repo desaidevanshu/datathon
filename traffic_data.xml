@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TrafficDataset country="India" state="Maharashtra" version="1.0">
+
+  <!-- ================= METADATA ================= -->
+  <Metadata>
+    <City>Mumbai</City>
+    <TimeZone>Asia/Kolkata</TimeZone>
+    <Granularity>Hourly</Granularity>
+    <PredictionTask>Traffic Congestion Forecasting</PredictionTask>
+    <TargetVariable>CongestionLevel</TargetVariable>
+    <DataSources>
+      <Source>Urban Traffic Sensors</Source>
+      <Source>GPS &amp; Floating Car Data</Source>
+      <Source>Smart Mobility Systems</Source>
+    </DataSources>
+  </Metadata>
+
+  <!-- ================= TRAFFIC NODES ================= -->
+  <TrafficNodes>
+
+    <!-- ========= NODE 1 ========= -->
+    <Node id="NODE_001">
+      <Location>Andheri_East</Location>
+      <RoadType>Arterial</RoadType>
+      <Lanes>4</Lanes>
+      <SpeedLimit>60</SpeedLimit>
+
+      <TimeSeries>
+
+        <!-- ===== RECORD 1 ===== -->
+        <Record timestamp="2018-01-01T00:00:00" split="train">
+          <Traffic>
+            <TrafficVolume>910</TrafficVolume>
+            <TrafficSpeed>52.33</TrafficSpeed>
+            <TrafficDensity>30</TrafficDensity>
+            <VehicleCount>63</VehicleCount>
+            <VehicleSpeed>55.68</VehicleSpeed>
+            <RoadOccupancy>82.65</RoadOccupancy>
+            <TravelTime>9.79</TravelTime>
+          </Traffic>
+
+          <Temporal>
+            <Hour>0</Hour>
+            <DayOfWeek>Monday</DayOfWeek>
+            <PeakType>OffPeak</PeakType>
+          </Temporal>
+
+          <Infrastructure>
+            <RoadLength>8.54</RoadLength>
+            <NumberOfLanes>2</NumberOfLanes>
+            <IntersectionPresent>true</IntersectionPresent>
+            <TrafficSignalCount>1</TrafficSignalCount>
+            <SignalPhaseDuration>30</SignalPhaseDuration>
+          </Infrastructure>
+
+          <Weather>
+            <Condition>Clear</Condition>
+            <EmissionLevel>1.05</EmissionLevel>
+            <EnergyConsumption>19.57</EnergyConsumption>
+          </Weather>
+
+          <Events>
+            <Incident>No</Incident>
+            <AccidentCount>0</AccidentCount>
+          </Events>
+
+          <SmartMobility>
+            <GPSUtilization>0.19</GPSUtilization>
+            <PublicTransportActive>true</PublicTransportActive>
+            <RideSharingDemand>2</RideSharingDemand>
+            <ParkingAvailability>45</ParkingAvailability>
+            <SentimentScore>-0.60</SentimentScore>
+          </SmartMobility>
+
+          <GraphContext>
+            <PreviousTimesteps>3</PreviousTimesteps>
+            <ConnectedNodes>NODE_002,NODE_003</ConnectedNodes>
+            <EdgeWeight>0.72</EdgeWeight>
+          </GraphContext>
+
+          <Target>
+            <CongestionLevel>High</CongestionLevel>
+            <DelayReduction>13.26</DelayReduction>
+            <OptimalRoute>Route_A</OptimalRoute>
+          </Target>
+        </Record>
+
+        <!-- ===== RECORD 2 ===== -->
+        <Record timestamp="2018-01-01T01:00:00" split="train">
+          <Traffic>
+            <TrafficVolume>780</TrafficVolume>
+            <TrafficSpeed>58.10</TrafficSpeed>
+            <TrafficDensity>24</TrafficDensity>
+            <VehicleCount>51</VehicleCount>
+            <VehicleSpeed>61.20</VehicleSpeed>
+            <RoadOccupancy>71.34</RoadOccupancy>
+            <TravelTime>8.12</TravelTime>
+          </Traffic>
+
+          <Temporal>
+            <Hour>1</Hour>
+            <DayOfWeek>Monday</DayOfWeek>
+            <PeakType>OffPeak</PeakType>
+          </Temporal>
+
+          <Infrastructure>
+            <RoadLength>8.54</RoadLength>
+            <NumberOfLanes>2</NumberOfLanes>
+            <IntersectionPresent>true</IntersectionPresent>
+            <TrafficSignalCount>1</TrafficSignalCount>
+            <SignalPhaseDuration>30</SignalPhaseDuration>
+          </Infrastructure>
+
+          <Weather>
+            <Condition>Clear</Condition>
+            <EmissionLevel>0.98</EmissionLevel>
+            <EnergyConsumption>18.22</EnergyConsumption>
+          </Weather>
+
+          <Events>
+            <Incident>No</Incident>
+            <AccidentCount>0</AccidentCount>
+          </Events>
+
+          <SmartMobility>
+            <GPSUtilization>0.22</GPSUtilization>
+            <PublicTransportActive>true</PublicTransportActive>
+            <RideSharingDemand>1</RideSharingDemand>
+            <ParkingAvailability>52</ParkingAvailability>
+            <SentimentScore>-0.42</SentimentScore>
+          </SmartMobility>
+
+          <GraphContext>
+            <PreviousTimesteps>3</PreviousTimesteps>
+            <ConnectedNodes>NODE_002,NODE_003</ConnectedNodes>
+            <EdgeWeight>0.65</EdgeWeight>
+          </GraphContext>
+
+          <Target>
+            <CongestionLevel>Medium</CongestionLevel>
+            <DelayReduction>9.85</DelayReduction>
+            <OptimalRoute>Route_B</OptimalRoute>
+          </Target>
+        </Record>
+
+        <!-- ===== RECORD 3 (TEST) ===== -->
+        <Record timestamp="2018-01-15T08:00:00" split="test">
+          <Traffic>
+            <TrafficVolume>1820</TrafficVolume>
+            <TrafficSpeed>21.40</TrafficSpeed>
+            <TrafficDensity>78</TrafficDensity>
+            <VehicleCount>121</VehicleCount>
+            <VehicleSpeed>24.10</VehicleSpeed>
+            <RoadOccupancy>93.10</RoadOccupancy>
+            <TravelTime>22.50</TravelTime>
+          </Traffic>
+
+          <Temporal>
+            <Hour>8</Hour>
+            <DayOfWeek>Monday</DayOfWeek>
+            <PeakType>MorningPeak</PeakType>
+          </Temporal>
+
+          <Infrastructure>
+            <RoadLength>8.54</RoadLength>
+            <NumberOfLanes>2</NumberOfLanes>
+            <IntersectionPresent>true</IntersectionPresent>
+            <TrafficSignalCount>1</TrafficSignalCount>
+            <SignalPhaseDuration>30</SignalPhaseDuration>
+          </Infrastructure>
+
+          <Weather>
+            <Condition>Rain</Condition>
+            <EmissionLevel>1.89</EmissionLevel>
+            <EnergyConsumption>32.10</EnergyConsumption>
+          </Weather>
+
+          <Events>
+            <Incident>MinorAccident</Incident>
+            <AccidentCount>1</AccidentCount>
+          </Events>
+
+          <SmartMobility>
+            <GPSUtilization>0.41</GPSUtilization>
+            <PublicTransportActive>true</PublicTransportActive>
+            <RideSharingDemand>6</RideSharingDemand>
+            <ParkingAvailability>12</ParkingAvailability>
+            <SentimentScore>-0.88</SentimentScore>
+          </SmartMobility>
+
+          <GraphContext>
+            <PreviousTimesteps>3</PreviousTimesteps>
+            <ConnectedNodes>NODE_002,NODE_003</ConnectedNodes>
+            <EdgeWeight>0.91</EdgeWeight>
+          </GraphContext>
+
+          <Target>
+            <CongestionLevel>Severe</CongestionLevel>
+            <DelayReduction>0.00</DelayReduction>
+            <OptimalRoute>None</OptimalRoute>
+          </Target>
+        </Record>
+
+      </TimeSeries>
+    </Node>
+
+  </TrafficNodes>
+
+</TrafficDataset>

@@ -1,0 +1,12 @@
+pandas
+scikit-learn
+xgboost
+lxml
+matplotlib
+seaborn
+torch
+numpy
+osmnx
+requests
+beautifulsoup4
+geopy
