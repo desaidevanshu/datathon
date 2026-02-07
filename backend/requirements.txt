@@ -1,0 +1,10 @@
+fastapi
+uvicorn[standard]
+httpx
+pydantic
+python-dotenv
+osmnx
+networkx
+scipy
+shapely
+requests
