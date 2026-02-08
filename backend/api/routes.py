@@ -783,6 +783,38 @@ Give practical advice for this specific route."""
         return f"Route from {route_context.get('source')} to {route_context.get('destination')} analyzed. Check alerts and reports for details."
 
 
+
+@router.get("/locations")
+async def get_locations():
+    """
+    Get list of available locations from the dataset.
+    """
+    try:
+        csv_path = Path(backend_dir) / "all_features_traffic_dataset.csv"
+        if not csv_path.exists():
+             # Fallback if file not found
+             return {"locations": ["Bandra-Kurla Complex", "Western Express Highway", "Linking Road"]}
+        
+        # Read CSV (Optimized: read only required column if possible, or cache)
+        # For simplicity in this step, we read and cache uniquely
+        import pandas as pd
+        
+        # Simple caching mechanism (could be improved)
+        if not hasattr(get_locations, "cache"):
+             df = pd.read_csv(csv_path)
+             if "Road_Segment_ID" in df.columns:
+                 # Get unique sorted IDs
+                 ids = sorted(df["Road_Segment_ID"].unique())
+                 get_locations.cache = [f"Road Segment {i}" for i in ids]
+             else:
+                 get_locations.cache = ["General Mumbai Traffic"]
+        
+        return {"locations": get_locations.cache}
+        
+    except Exception as e:
+        print(f"[ERROR] Fetching locations failed: {e}")
+        return {"locations": ["Bandra", "Andheri", "Dadar"]} # Fallback
+
 # ==========================================
 # New Features Integration (Datathon Expansion)
 # ==========================================
