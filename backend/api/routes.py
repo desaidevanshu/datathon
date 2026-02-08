@@ -38,6 +38,38 @@ async def predict_traffic(
         if "error" in data:
             raise HTTPException(status_code=400, detail=data["error"])
             
+        # --- DATATHON INTEGRATION: Smart Recommendations for General Prediction ---
+        # We derived this logic for routes, now we apply it to general city prediction
+        try:
+            from backend.src.smart_recommendations import get_route_viability, suggest_smart_break, optimize_departure_time
+            
+            # Map congestion level to int (High=2, Med=1, Low=0)
+            cong_level_str = data.get("prediction", {}).get("congestion_level", "Low")
+            current_congestion = 0
+            if "High" in cong_level_str or "Critical" in cong_level_str: current_congestion = 2
+            elif "Medium" in cong_level_str or "Moderate" in cong_level_str: current_congestion = 1
+            
+            future_preds = data.get("forecast", [])
+            
+            viability_alert = get_route_viability(current_congestion, future_preds)
+            smart_break = suggest_smart_break(future_preds)
+            optimal_time = optimize_departure_time(current_congestion, future_preds, 17) # Mock current hour if not in inputs
+            
+            data["smart_analysis"] = {
+                "viability_alert": viability_alert,
+                "smart_break": smart_break,
+                "optimal_departure": optimal_time,
+                # Create a timeline for the chart
+                "timeline": [
+                    {"time": "Now", "traffic": 90 if current_congestion==2 else 50, "recommendation": "Avoid" if current_congestion==2 else "Go"},
+                    {"time": "+1h", "traffic": 70, "recommendation": "Better"},
+                    {"time": "+2h", "traffic": 40, "recommendation": "Best"}
+                ]
+            }
+        except Exception as e:
+            print(f"[WARNING] /predict Smart Analysis failed: {e}")
+            data["smart_analysis"] = {}
+
         return data
         
     except Exception as e:
@@ -73,7 +105,8 @@ def get_osrm_route(start_lat, start_lon, dest_lat, dest_lon):
             "overview": "full",
             "geometries": "polyline",
             "alternatives": "3",
-            "steps": "true"
+            "steps": "true",
+            "annotations": "true"
         }
         headers = {
             "User-Agent": "TrafficIntelligenceApp/1.0"
@@ -101,7 +134,8 @@ def get_osrm_route(start_lat, start_lon, dest_lat, dest_lon):
                     all_routes.append({
                         "geometry": path,
                         "duration": route.get("duration", 0),
-                        "distance": route.get("distance", 0) / 1000
+                        "distance": route.get("distance", 0) / 1000,
+                        "legs": route.get("legs", [])
                     })
                 
                 # Main route is the first one
@@ -567,37 +601,94 @@ async def analyze_routes(request: RouteRequest, user_preference: str = Query("Fa
         print(f"[ERROR] Featherless AI failed: {e}")
         ai_explanation = None
     
-    # 3. Bottleneck Generation (Visuals for Map)
+    # 3. Hybrid Bottleneck Generation (Spatial + Temporal)
     bottlenecks = []
-    # If High congestion, place a bottleneck at 70% of the route
-    if best_route["congestion_index"] > 0.6: # High
-        mid_idx = int(len(best_route["points"]) * 0.7)
-        if mid_idx < len(best_route["points"]):
-             pt = best_route["points"][mid_idx]
-             bottlenecks.append({
-                 "lat": pt[1],
-                 "lon": pt[0],
-                 "type": "Traffic Jam",
-                 "severity": "High",
-                 "description": "Severe congestion detected near mid-route."
-             })
-    # If Medium, place at 40%
-    elif best_route["congestion_index"] > 0.3: # Medium
-         mid_idx = int(len(best_route["points"]) * 0.4)
-         if mid_idx < len(best_route["points"]):
-             pt = best_route["points"][mid_idx]
-             bottlenecks.append({
-                 "lat": pt[1],
-                 "lon": pt[0],
-                 "type": "Slowdown",
-                 "severity": "Moderate",
-                 "description": "Traffic flow slowing down."
-             })
     
+    # A. Spatial Detection: Scan OSRM steps for actual slow segments
+    try:
+        if routes_response and len(routes_response) > 0:
+             main_route = routes_response[0]
+             legs = main_route.get("legs", [])
+             
+             slowest_steps = []
+             
+             for leg in legs:
+                 steps = leg.get("steps", [])
+                 for step in steps:
+                     # Calculate speed (km/h)
+                     dist_m = step.get("distance", 0)
+                     dur_s = step.get("duration", 0)
+                     
+                     if dur_s > 0 and dist_m > 50: # Only consider significant segments
+                         speed_kmh = (dist_m / 1000) / (dur_s / 3600)
+                         
+                         # Thresholds for Bottlenecks
+                         if speed_kmh < 20: # Very Slow
+                             slowest_steps.append({
+                                 "speed": speed_kmh,
+                                 "loc": step.get("maneuver", {}).get("location"), # [lon, lat]
+                                 "name": step.get("name", "Road Segment"),
+                                 "severity": "High" if speed_kmh < 10 else "Moderate"
+                             })
+
+             # Sort by speed (ascending) to find worst bottlenecks
+             slowest_steps.sort(key=lambda x: x["speed"])
+             
+             # Pick top 2 unique locations
+             top_bottlenecks = slowest_steps[:2]
+             
+             if top_bottlenecks:
+                 for b in top_bottlenecks:
+                      if b["loc"]:
+                          bottlenecks.append({
+                             "lat": b["loc"][1],
+                             "lon": b["loc"][0],
+                             "type": "Traffic Jam" if b["severity"] == "High" else "Slowdown",
+                             "severity": b["severity"],
+                             "description": f"Heavy traffic on {b['name']} ({int(b['speed'])} km/h)"
+                         })
+             
+             # FALLBACK: If no explicit slow steps found but route is congestion High
+             elif best_route["congestion_index"] > 0.5 and not bottlenecks:
+                 # Use previous heuristic logic as fallback
+                 main_route_geometry = main_route["geometry"]
+                 mid_idx = int(len(main_route_geometry) * 0.6)
+                 if mid_idx < len(main_route_geometry):
+                     pt = main_route_geometry[mid_idx]
+                     bottlenecks.append({
+                         "lat": pt[1],
+                         "lon": pt[0],
+                         "type": "Slowdown",
+                         "severity": "Moderate",
+                         "description": "General route congestion detected."
+                     })
+                     
+    except Exception as e:
+        print(f"[WARNING] Spatial Bottleneck detection failed: {e}")
+
+    except Exception as e:
+        print(f"[WARNING] Spatial Bottleneck detection failed: {e}")
+
+    # B. AI Temporal Prediction
+    if pred_data.get("forecast"):
+        for f in pred_data["forecast"]:
+             if f.get("is_bottleneck", False):
+                  bottlenecks.append({
+                      "location": f"Forecasted (+{f['step'].replace('+','').replace('h','')}h)",
+                      "lat": best_route["points"][0][1], # Placeholder lat
+                      "lon": best_route["points"][0][0], # Placeholder lon
+                      "congestion_forecast": "Critical",
+                      "eta_minutes": int(float(f['step'].replace('+','').replace('h','')) * 60),
+                      "probability": f['confidence'] / 100.0,
+                      "reason": "AI Predicted Congestion Spike"
+                  })
+
     # 4. Smart Recommendations (Datathon Feature 3)
     try:
         # Fetch Real-Time Events for AI Context
         from backend.src.scraper import get_city_events
+        from backend.src.smart_recommendations import get_route_viability, suggest_smart_break, optimize_departure_time
+        
         events = get_city_events("Mumbai")
         # Handle new structure where 'Details' behaves differently or use 'Name' directly if corrected
         # In scraper.py we return {Incident:..., Details: {Name:..., Events:[...]}}
@@ -608,9 +699,12 @@ async def analyze_routes(request: RouteRequest, user_preference: str = Query("Fa
         if best_route["congestion_level"] == "Medium": current_congestion = 1
         elif best_route["congestion_level"] == "High": current_congestion = 2
         
-        # Mocking future predictions if not available from ML yet
-        future_preds = structured_data.get("forecast", [])
+        # Use Real AI Predictions from Phase 1
+        future_preds = pred_data.get("forecast", [])
+        
+        # Fallback if no forecast available
         if not future_preds:
+             print("[WARNING] No forecast data found, using heuristic fallback.")
              future_preds = [
                  {'time_ahead': 0.5, 'hour': 18, 'level': current_congestion},
                  {'time_ahead': 1.0, 'hour': 19, 'level': max(0, current_congestion - 1)},
