@@ -126,7 +126,7 @@ function FullMap() {
                     return;
                 }
 
-                const response = await axios.post('http://localhost:8005/api/stations', {
+                const response = await axios.post('https://datathon-w1z4.onrender.com/api/stations', {
                     start: routeData.routes[0].points[0] ? { lat: routeData.routes[0].points[0][1], lon: routeData.routes[0].points[0][0] } : null,
                     destination: routeData.routes[0].points[routeData.routes[0].points.length - 1] ? { lat: routeData.routes[0].points[routeData.routes[0].points.length - 1][1], lon: routeData.routes[0].points[routeData.routes[0].points.length - 1][0] } : null
                 });
@@ -201,10 +201,10 @@ function FullMap() {
             // This line was added based on the instruction's "Code Edit" snippet.
             // The instruction text mentioned 'fetchEvents' but the snippet was for 'handleRoute'.
             // Assuming the intent was to add this call within the try block of handleRoute.
-            const predictResponse = await axios.get('http://localhost:8005/api/predict?city=Mumbai');
+            const predictResponse = await axios.get('https://datathon-w1z4.onrender.com/api/predict?city=Mumbai');
             console.log("Prediction data:", predictResponse.data); // Log the prediction data
 
-            const response = await axios.post('http://localhost:8005/api/analyze_routes', {
+            const response = await axios.post('https://datathon-w1z4.onrender.com/api/analyze_routes', {
                 start: startCoords,
                 destination: destCoords,
                 source_name: startLoc || 'Bandra',

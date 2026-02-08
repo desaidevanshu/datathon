@@ -12,7 +12,7 @@ const Alerts = () => {
     useEffect(() => {
         const fetchEvents = async () => {
             try {
-                const response = await axios.get('http://localhost:8005/api/predict?city=Mumbai');
+                const response = await axios.get('https://datathon-w1z4.onrender.com/api/predict?city=Mumbai');
                 const data = response.data;
                 const eventData = data?.context?.events || {};
 

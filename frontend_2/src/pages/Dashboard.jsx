@@ -107,7 +107,7 @@ const Dashboard = () => {
         const fetchPrediction = async () => {
             try {
                 // Fetch from our local backend (Port 8002)
-                const response = await axios.get('http://localhost:8005/api/predict?city=Mumbai');
+                const response = await axios.get('https://datathon-w1z4.onrender.com/api/predict?city=Mumbai');
                 const data = await response.data;
                 setPrediction(data);
 

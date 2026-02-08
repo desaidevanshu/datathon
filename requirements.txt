@@ -10,3 +10,9 @@ osmnx
 requests
 beautifulsoup4
 geopy
+fastapi
+uvicorn
+openai
+python-dotenv
+pydantic
+httpx

@@ -10,7 +10,7 @@ const Alerts = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await fetch('http://localhost:8005/api/predict?city=Mumbai');
+                const response = await fetch('https://datathon-w1z4.onrender.com/api/predict?city=Mumbai');
                 if (response.ok) {
                     const data = await response.json();
                     setDashboardData(data);
@@ -105,8 +105,8 @@ const Alerts = () => {
                     <button
                         onClick={() => setTimeFilter('24h')}
                         className={`flex items-center gap-2 px-4 py-2 rounded-lg font-semibold text-sm transition-all ${timeFilter === '24h'
-                                ? 'bg-cyan-600 text-white shadow-lg'
-                                : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
+                            ? 'bg-cyan-600 text-white shadow-lg'
+                            : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
                             }`}
                     >
                         <Clock size={16} />
@@ -115,8 +115,8 @@ const Alerts = () => {
                     <button
                         onClick={() => setTimeFilter('7d')}
                         className={`flex items-center gap-2 px-4 py-2 rounded-lg font-semibold text-sm transition-all ${timeFilter === '7d'
-                                ? 'bg-cyan-600 text-white shadow-lg'
-                                : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
+                            ? 'bg-cyan-600 text-white shadow-lg'
+                            : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
                             }`}
                     >
                         <Calendar size={16} />

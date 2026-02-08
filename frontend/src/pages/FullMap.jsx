@@ -58,6 +58,7 @@ function FullMap() {
     const [allRoutes, setAllRoutes] = useState([])
     const [selectedRouteIndex, setSelectedRouteIndex] = useState(0)
     const [congestionPrediction, setCongestionPrediction] = useState(null)
+    const [smartInsights, setSmartInsights] = useState(null)
     const [aiExplanation, setAiExplanation] = useState(null)
 
     const [isNavigating, setIsNavigating] = useState(false)
@@ -337,7 +338,7 @@ function FullMap() {
         }
 
         try {
-            const response = await axios.post('http://localhost:8005/api/route', {
+            const response = await axios.post('https://datathon-w1z4.onrender.com/api/route', {
                 start: startCoords,
                 destination: destCoords,
                 engine_type: engineType // Send Engine Type
@@ -404,6 +405,14 @@ function FullMap() {
             setSelectedRouteIndex(0);
             setCongestionPrediction(data.congestion || []);
             console.log("Backend Response Data:", data);
+
+            // Smart Recommendations
+            if (data.analysis_context && data.analysis_context.smart_recommendations) {
+                setSmartInsights(data.analysis_context.smart_recommendations);
+            } else {
+                setSmartInsights(null);
+            }
+
             console.log("AI Insight Raw:", data.ai_insight);
             setAiExplanation(data.ai_insight || data.route_analysis?.ai_explanation || data.route_analysis?.ai_route_briefing || null);
             setIsNavigating(true);
@@ -557,6 +566,32 @@ function FullMap() {
                                         {aiExplanation}
                                     </p>
                                 </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Smart Mobility Suggestions (New) */}
+                    {smartInsights && (
+                        <div className="mb-6 p-4 bg-gradient-to-br from-emerald-50 to-teal-50 rounded-xl border border-emerald-100 shadow-sm animate-in fade-in slide-in-from-bottom-3 duration-700">
+                            <div className="flex items-center gap-2 mb-3">
+                                <div className="p-1.5 bg-emerald-500 text-white rounded-lg shadow-sm">
+                                    <Activity className="w-4 h-4" />
+                                </div>
+                                <h3 className="text-sm font-bold text-emerald-800 uppercase tracking-wide">Smart Mobility</h3>
+                            </div>
+                            <div className="space-y-3">
+                                {smartInsights.optimal_departure && (
+                                    <div className="p-3 bg-white rounded-lg border border-emerald-100 shadow-sm">
+                                        <div className="text-xs text-emerald-600 font-bold uppercase mb-1">Optimal Departure</div>
+                                        <div className="text-sm text-gray-700 font-medium">{smartInsights.optimal_departure}</div>
+                                    </div>
+                                )}
+                                {smartInsights.smart_break && (
+                                    <div className="p-3 bg-white rounded-lg border border-blue-100 shadow-sm">
+                                        <div className="text-xs text-blue-600 font-bold uppercase mb-1">Smart BreakLogic</div>
+                                        <div className="text-sm text-gray-700 font-medium">{smartInsights.smart_break}</div>
+                                    </div>
+                                )}
                             </div>
                         </div>
                     )}

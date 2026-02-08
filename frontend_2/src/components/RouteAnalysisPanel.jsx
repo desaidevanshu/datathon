@@ -73,6 +73,47 @@ const RouteAnalysisPanel = ({ routeAnalysis, source, destination }) => {
                     </div>
                 )}
 
+                {/* Smart Recommendations (New Feature) */}
+                {routeAnalysis.smart_recommendations && (
+                    <div className="bg-gradient-to-br from-emerald-900/40 to-teal-900/30 border border-emerald-500/40 rounded-xl p-4 shadow-lg shadow-emerald-900/10">
+                        <div className="flex items-center gap-2 mb-3">
+                            <div className="p-1 bg-emerald-500/20 rounded-lg">
+                                <TrendingUp className="w-4 h-4 text-emerald-400" />
+                            </div>
+                            <h3 className="text-sm font-bold text-white tracking-wide">SMART MOBILITY</h3>
+                        </div>
+
+                        <div className="space-y-3">
+                            {/* Viability Alert */}
+                            {routeAnalysis.smart_recommendations.viability_alert && (
+                                <div className="p-3 bg-red-500/10 rounded-lg border border-red-500/30 flex gap-3 items-start">
+                                    <AlertTriangle className="w-4 h-4 text-red-400 shrink-0 mt-0.5" />
+                                    <div>
+                                        <div className="text-xs text-red-300 font-bold uppercase mb-0.5">Congestion Alert</div>
+                                        <div className="text-sm text-gray-200">{routeAnalysis.smart_recommendations.viability_alert}</div>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Optimal Departure */}
+                            {routeAnalysis.smart_recommendations.optimal_departure && (
+                                <div className="p-3 bg-emerald-500/10 rounded-lg border border-emerald-500/30">
+                                    <div className="text-xs text-emerald-300 font-bold uppercase mb-0.5 tracking-wider">Optimal Departure</div>
+                                    <div className="text-sm text-white font-medium">{routeAnalysis.smart_recommendations.optimal_departure}</div>
+                                </div>
+                            )}
+
+                            {/* Smart Break */}
+                            {routeAnalysis.smart_recommendations.smart_break && (
+                                <div className="p-3 bg-blue-500/10 rounded-lg border border-blue-500/30">
+                                    <div className="text-xs text-blue-300 font-bold uppercase mb-0.5 tracking-wider">Smart Break Logic</div>
+                                    <div className="text-sm text-white font-medium">{routeAnalysis.smart_recommendations.smart_break}</div>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                )}
+
                 {/* Bottlenecks */}
                 {bottlenecks.length > 0 && (
                     <div className="bg-gray-800/50 rounded-xl p-4 border border-red-500/30">

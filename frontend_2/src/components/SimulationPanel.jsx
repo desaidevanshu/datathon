@@ -14,7 +14,7 @@ const SimulationPanel = ({ city, onSimulationComplete }) => {
         setResult(null);
 
         try {
-            const response = await axios.post('http://localhost:8005/api/simulate', {
+            const response = await axios.post('https://datathon-w1z4.onrender.com/api/simulate', {
                 location: city || "Mumbai",
                 scenario: scenario,
                 intensity: 1.0

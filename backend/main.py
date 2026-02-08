@@ -41,6 +41,10 @@ app.add_middleware(
 
 app.include_router(api_router, prefix="/api")
 
+@app.get("/")
+async def root():
+    return {"message": "Traffic Intelligence API is running. Visit /docs for Swagger UI."}
+
 @app.get("/health")
 async def health_check():
     return {"status": "ok", "message": "Backend Online"}

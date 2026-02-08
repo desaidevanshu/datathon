@@ -56,7 +56,7 @@ const Dashboard = () => {
         const fetchPrediction = async () => {
             try {
                 // Fetch from our local backend (Port 8005)
-                const response = await fetch('http://localhost:8005/api/predict?city=Mumbai');
+                const response = await fetch('https://datathon-w1z4.onrender.com/api/predict?city=Mumbai');
                 if (response.ok) {
                     const data = await response.json();
                     setDashboardData(data);

@@ -21,7 +21,7 @@ const CommunityPanel = ({ currentLocation }) => {
     const fetchReports = async () => {
         try {
             const loc = currentLocation || "Mumbai";
-            const response = await axios.get(`http://localhost:8005/api/community/feed`, {
+            const response = await axios.get(`https://datathon-w1z4.onrender.com/api/community/feed`, {
                 params: { location: loc }
             });
             if (response.data.reports) {
@@ -37,7 +37,7 @@ const CommunityPanel = ({ currentLocation }) => {
         setSending(true);
 
         try {
-            await axios.post('http://localhost:8005/api/community/report', {
+            await axios.post('https://datathon-w1z4.onrender.com/api/community/report', {
                 location: currentLocation || "Mumbai",
                 feedback: newReport,
                 severity: severity
