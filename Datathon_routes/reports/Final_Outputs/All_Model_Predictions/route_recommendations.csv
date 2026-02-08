@@ -1,0 +1,11 @@
+Timestamp,Origin,Destination,Best_Route,Predicted_Time_Min,Predicted_Congestion,Alternative_Routes_Count,Time_Savings_Min
+2024-10-21 21:00:00,Andheri_East_MIDC,Byculla_Zoo,Andheri_East_MIDC_TO_Byculla_Zoo,34.61,0.79,0,0
+2024-10-21 22:00:00,Andheri_East_MIDC,Byculla_Zoo,Andheri_East_MIDC_TO_Byculla_Zoo,31.78,0.79,0,0
+2024-10-21 23:00:00,Andheri_East_MIDC,Byculla_Zoo,Andheri_East_MIDC_TO_Byculla_Zoo,27.59,0.76,0,0
+2024-10-22 00:00:00,Andheri_East_MIDC,Byculla_Zoo,Andheri_East_MIDC_TO_Byculla_Zoo,27.65,0.76,0,0
+2024-10-22 01:00:00,Andheri_East_MIDC,Byculla_Zoo,Andheri_East_MIDC_TO_Byculla_Zoo,24.64,0.72,0,0
+2024-10-22 02:00:00,Andheri_East_MIDC,Byculla_Zoo,Andheri_East_MIDC_TO_Byculla_Zoo,25.54,0.72,0,0
+2024-10-22 03:00:00,Andheri_East_MIDC,Byculla_Zoo,Andheri_East_MIDC_TO_Byculla_Zoo,22.73,0.68,0,0
+2024-10-22 04:00:00,Andheri_East_MIDC,Byculla_Zoo,Andheri_East_MIDC_TO_Byculla_Zoo,25.65,0.7,0,0
+2024-10-22 05:00:00,Andheri_East_MIDC,Byculla_Zoo,Andheri_East_MIDC_TO_Byculla_Zoo,24.97,0.69,0,0
+2024-10-22 06:00:00,Andheri_East_MIDC,Byculla_Zoo,Andheri_East_MIDC_TO_Byculla_Zoo,25.17,0.69,0,0

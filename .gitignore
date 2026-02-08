@@ -9,3 +9,5 @@ env/
 output_*.txt
 *.pkl
 *.pth
+llm_config.env
+firebase_admin_config.json

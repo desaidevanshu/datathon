@@ -1,0 +1,81 @@
+Loading resources...
+C:\Users\USER\Desktop\Datathon_integr\venv\lib\site-packages\sklearn\base.py:442: InconsistentVersionWarning: Trying to unpickle estimator MinMaxScaler from version 1.8.0 when using version 1.7.2. This might lead to breaking code or invalid results. Use at your own risk. For more info please refer to:
+https://scikit-learn.org/stable/model_persistence.html#security-maintainability-limitations
+  warnings.warn(
+C:\Users\USER\Desktop\Datathon_integr\venv\lib\site-packages\sklearn\base.py:442: InconsistentVersionWarning: Trying to unpickle estimator LabelEncoder from version 1.8.0 when using version 1.7.2. This might lead to breaking code or invalid results. Use at your own risk. For more info please refer to:
+https://scikit-learn.org/stable/model_persistence.html#security-maintainability-limitations
+  warnings.warn(
+C:\Users\USER\Desktop\Datathon_integr\venv\lib\site-packages\sklearn\base.py:442: InconsistentVersionWarning: Trying to unpickle estimator ExtraTreeRegressor from version 1.8.0 when using version 1.7.2. This might lead to breaking code or invalid results. Use at your own risk. For more info please refer to:
+https://scikit-learn.org/stable/model_persistence.html#security-maintainability-limitations
+  warnings.warn(
+C:\Users\USER\Desktop\Datathon_integr\venv\lib\site-packages\sklearn\base.py:442: InconsistentVersionWarning: Trying to unpickle estimator IsolationForest from version 1.8.0 when using version 1.7.2. This might lead to breaking code or invalid results. Use at your own risk. For more info please refer to:
+https://scikit-learn.org/stable/model_persistence.html#security-maintainability-limitations
+  warnings.warn(
+
+--- Intelligent Traffic Forecaster (Interactive) ---
+System Online. Connected to Live Weather & Events API.
+
+=== New Trip Query ===
+Enter Origin: Enter Destination: 
+>>> COMMUNITY REPORTS <<<
+No recent reports for this route.
+
+[SYSTEM] Locating Nearby Stations...
+   ! EV charger query failed: No matching features. Check query location, tags, and log.
+
+>>> NEARBY STATIONS <<<
+Fuel Stations: 4 found
+  � M/s Uganda Service Station (1.2 km)
+  � Satguru Automobiles (1.3 km)
+  � HP (1.5 km)
+EV Chargers:   0 found
+
+[SYSTEM] Scanning Environment & Sensors...
+Fetching live weather for Mumbai...
+Live Weather: {'City': 'Mumbai', 'Temperature': 26.4, 'Condition': 'Clear', 'WindSpeed': 10.0}
+   > Weather: Clear (26.4C)
+Scanning for major events in Mumbai via Google News RSS...
+   [REAL-TIME] Event Found: T20 World Cup: IND vs USA
+Scanning for major events in Mumbai via Google News RSS...
+   [REAL-TIME] Event Found: T20 World Cup: IND vs USA
+   > Events:  T20 World Cup: IND vs USA (Impact: 0.8)
+   [INIT] Handshaking with IoT Gateway (Mumbai (Central))...
+   [CONN] IoT Sensors Online: Inductive Loops Active.      
+   [INIT] Connecting to Telemetry Stream...
+   [CONN] GPS Probe Stream: 5,402 Active Nodes.          
+   > Traffic: 656 veh/hr | Speed: 42.3 km/h
+C:\Users\USER\Desktop\Datathon_integr\venv\lib\site-packages\sklearn\utils\validation.py:2749: UserWarning: X does not have valid feature names, but MinMaxScaler was fitted with feature names
+  warnings.warn(
+
+>>> FORECAST <<<
+Prediction: Low / Free Flow (Level 0)
+Confidence: 100.0%
+
+>>> BOTTLENECK FORECAST <<<
+C:\Users\USER\Desktop\Datathon_integr\venv\lib\site-packages\sklearn\utils\validation.py:2749: UserWarning: X does not have valid feature names, but MinMaxScaler was fitted with feature names
+  warnings.warn(
+C:\Users\USER\Desktop\Datathon_integr\venv\lib\site-packages\sklearn\utils\validation.py:2749: UserWarning: X does not have valid feature names, but MinMaxScaler was fitted with feature names
+  warnings.warn(
+C:\Users\USER\Desktop\Datathon_integr\venv\lib\site-packages\sklearn\utils\validation.py:2749: UserWarning: X does not have valid feature names, but MinMaxScaler was fitted with feature names
+  warnings.warn(
+  +0.5h (02:00): Low / Free Flow [100%] -> STABLE
+  +1.0h (03:00): Low / Free Flow [100%] -> STABLE
+  +2.0h (05:00): Low / Free Flow [100%] -> STABLE
+
+>>> SMART RECOMMENDATIONS <<<
+[OK] Route looks clear - No major congestion predicted
+[TIME] OPTIMAL DEPARTURE: Leave now for best travel conditions
+
+
+Run What-If Scenario? (y/n): 
+
+Submit traffic report for this route? (y/n): Describe current conditions: Severity (Low/Moderate/High): [OK] Report submitted anonymously. Thank you!
+
+
+Check another route? (y/n): 
+=== New Trip Query ===
+Enter Origin: Invalid option. Suggestions: [np.str_('Andheri_East_MIDC'), np.str_('BKC'), np.str_('Byculla_Zoo'), np.str_('CSMT'), np.str_('Gateway_of_India')]...
+Enter Origin: Invalid option. Suggestions: [np.str_('Andheri_East_MIDC'), np.str_('BKC'), np.str_('Byculla_Zoo'), np.str_('CSMT'), np.str_('Gateway_of_India')]...
+Enter Origin: Invalid option. Suggestions: [np.str_('Andheri_East_MIDC'), np.str_('BKC'), np.str_('Byculla_Zoo'), np.str_('CSMT'), np.str_('Gateway_of_India')]...
+Enter Origin: Invalid option. Suggestions: [np.str_('Andheri_East_MIDC'), np.str_('BKC'), np.str_('Byculla_Zoo'), np.str_('CSMT'), np.str_('Gateway_of_India')]...
+Enter Origin: 

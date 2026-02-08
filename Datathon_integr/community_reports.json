@@ -1,0 +1,74 @@
+{
+  "reports": [
+    {
+      "id": "r0001",
+      "timestamp": "2026-02-08T02:11:11.164933",
+      "location": "CSMT-Dadar",
+      "reporter_id": "anon_c40431be",
+      "report": "Heavy traffic due to road construction",
+      "severity": "High",
+      "verified": false,
+      "flags": 6
+    },
+    {
+      "id": "r0002",
+      "timestamp": "2026-02-08T02:11:11.186747",
+      "location": "CSMT-Dadar",
+      "reporter_id": "anon_b52a27c3",
+      "report": "Smooth traffic, no issues",
+      "severity": "Low",
+      "verified": false,
+      "flags": 0
+    },
+    {
+      "id": "r0003",
+      "timestamp": "2026-02-08T02:11:11.201732",
+      "location": "CSMT-Dadar",
+      "reporter_id": "anon_bbfcd5f3",
+      "report": "Accident at junction - expect delays",
+      "severity": "Moderate",
+      "verified": false,
+      "flags": 0
+    },
+    {
+      "id": "r0004",
+      "timestamp": "2026-02-08T02:17:31.217415",
+      "location": "CSMT-BKC",
+      "reporter_id": "anon_c8cc9346",
+      "report": "Rain",
+      "severity": "1.5",
+      "verified": false,
+      "flags": 0
+    },
+    {
+      "id": "r0005",
+      "timestamp": "2026-02-08T02:48:48.764615",
+      "location": "CSMT-BKC",
+      "reporter_id": "anon_b799bf37",
+      "report": "Heavy traffic near BKC junction due to ongoing metro construction work",
+      "severity": "High",
+      "verified": false,
+      "flags": 0
+    },
+    {
+      "id": "r0006",
+      "timestamp": "2026-02-08T02:52:52.400194",
+      "location": "CSMT-Andheri_East_MIDC",
+      "reporter_id": "anon_b514c400",
+      "report": "Great Route",
+      "severity": "Low",
+      "verified": false,
+      "flags": 0
+    },
+    {
+      "id": "r0007",
+      "timestamp": "2026-02-08T03:21:44.798507",
+      "location": "Gateway_of_India-CSMT",
+      "reporter_id": "anon_08b7c69d",
+      "report": "Its busy.",
+      "severity": "Moderate",
+      "verified": false,
+      "flags": 0
+    }
+  ]
+}

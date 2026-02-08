@@ -40,155 +40,240 @@ def get_live_weather(city="Mumbai"):
         print(f"Error fetching weather: {e}")
         return {"Condition": "Clear", "Temperature": 30.0}
 
+import pandas as pd
+import numpy as np
 import xml.etree.ElementTree as ET
-from datetime import datetime
+from datetime import datetime, timedelta
+from email.utils import parsedate_to_datetime
+
+def parse_rss_date(date_string):
+    """Parse RSS pubDate to datetime object"""
+    try:
+        return parsedate_to_datetime(date_string)
+    except:
+        return None
+
+def is_recent_event(pub_date_str, hours_threshold=24):
+    """Check if event is within the last N hours"""
+    event_time = parse_rss_date(pub_date_str)
+    if not event_time:
+        return False
+    
+    # Make event_time timezone-naive for comparison
+    if event_time.tzinfo:
+        event_time = event_time.replace(tzinfo=None)
+    
+    now = datetime.now()
+    time_diff = now - event_time
+    return time_diff <= timedelta(hours=hours_threshold)
+
+# Simple in-memory cache
+# Format: { "city": { "timestamp": float, "data": dict } }
+_EVENT_CACHE = {} 
+_CACHE_TTL = 300  # 5 minutes
 
 def get_city_events(city="Mumbai", context=None):
     """
-    Scrapes Google News RSS for real-time traffic/event updates.
+    Scrapes multiple RSS sources for real-time traffic/event updates.
+    Returns ALL relevant events (not just one).
+    Optimized with Caching and Parallel Execution.
     """
-    print(f"Scanning for major events in {city} via Google News RSS...")
+    import time
+    from concurrent.futures import ThreadPoolExecutor, as_completed
     
-    # 0. Hyper-Local Route Intelligence (Priority 1)
-    if context:
-        src = context.get('source', '')
-        dst = context.get('dest', '')
-        
-        # Simulated Localized Events (Override General News)
-        if "Andheri" in src or "Andheri" in dst:
-            print(f"   [REAL-TIME] Hyper-Local Event: Metro Line 6 Construction")
-            return {"Incident": "Construction", "Details": {
-                "Name": "Metro Line 6 Girder Launch",
-                "Impact": "High",
-                "Location": "Andheri East (JVLR)",
-                "AffectedAreas": ["JVLR", "WEH Junction"],
-                "AltRoutes": ["SV Road", "Link Road"]
-            }}
-        if "Dadar" in src or "Dadar" in dst:
-             print(f"   [REAL-TIME] Hyper-Local Event: Religious Procession")
-             return {"Incident": "Religious Procession", "Details": {
-                "Name": "Local Procession",
-                "Impact": "Medium",
-                "Location": "Dadar TT Circle",
-                "AffectedAreas": ["Tilak Bridge", "Khodadad Circle"],
-                "AltRoutes": ["Eastern Express Highway", "Sion Bandra Link"]
-            }}
-
-    # 1. Real-Time Scraping (Multi-Source: News + Sports)
+    # Check Cache
+    now = time.time()
+    if city in _EVENT_CACHE:
+        cached = _EVENT_CACHE[city]
+        if now - cached["timestamp"] < _CACHE_TTL:
+            print(f"[CACHE HIT] Returning cached events for {city}")
+            return cached["data"]
+            
+    print(f"Scanning for events in {city} from multiple sources (Parallel)...")
+    
+    all_events = []
+    
+    # 1. Multi-Source RSS Scraping
     try:
-        # Source A: General Traffic News
-        queries = [
-            f"{city} traffic OR accident OR protest",
-            f"India cricket match today live" # Specialized Sports Query
+        # Define TRAFFIC-FOCUSED query sources (optimized for road/traffic relevance)
+        query_categories = [
+            # Critical Traffic Incidents
+            (f"{city} traffic jam OR accident OR crash OR collision", "Traffic"),
+            (f"{city} road block OR road closed OR highway closed", "Traffic"),
+            
+            # Infrastructure Work
+            (f"{city} road repair OR construction OR metro work OR flyover", "Infrastructure"),
+            (f"{city} diversion OR route change OR detour", "Infrastructure"),
+            
+            # Weather Impact on Roads
+            (f"{city} waterlogging OR flooding affecting traffic OR road flooded", "Weather"),
+            
+            # Events Affecting Traffic
+            (f"{city} match traffic OR stadium congestion OR event crowd", "Sports"),
+            (f"{city} protest blocking road OR rally traffic OR demonstration", "Political"),
+            
+            # General Traffic Conditions
+            (f"{city} heavy traffic OR congestion OR gridlock today", "Traffic")
         ]
         
-        found_events = []
-        
-        for q in queries:
-            url = f"https://news.google.com/rss/search?q={q}&hl=en-IN&gl=IN&ceid=IN:en"
-            response = requests.get(url, timeout=3)
-            if response.status_code == 200:
-                root = ET.fromstring(response.content)
-                for item in root.findall('./channel/item')[:2]:
-                    title = item.find('title').text
-                    
-                    # Custom Logic for the Match User Highlighted
-                    if "India" in title and ("USA" in title or "T20" in title):
-                        found_events.append({
-                            "Name": "T20 World Cup: IND vs USA",
-                            "Impact": "High",
-                            "Location": "Wankhede Stadium (Screening) / City Pubs",
-                            "AffectedAreas": ["Marine Drive", "Juhu Tara Road", "Linking Road"],
-                            "AltRoutes": ["SV Road", "Western Express Highway"],
-                            "Source": "Live Sports RSS"
-                        })
-                    
-                    # General Keywords
-                    impact = "Low"
-                    keywords_high = ["accident", "protest", "closed", "severe", "storm", "collision", "match"]
-                    lower_title = title.lower()
-                    if any(k in lower_title for k in keywords_high):
-                        impact = "High"
-                        
-                    if impact == "High" and not any(e['Name'] == title for e in found_events):
-                        found_events.append({
-                            "Name": title,
-                            "Impact": "High",
-                            "Location": f"{city} (General)",
-                            "AffectedAreas": [title[:50] + "..."],
-                            "Source": "Google News"
-                        })
-
-        if found_events:
-            # Prioritize Sports if found (User preference)
-            sports_event = next((e for e in found_events if "T20" in e['Name']), None)
-            top_event = sports_event if sports_event else found_events[0]
+        def fetch_rss(query_tuple):
+            query, category = query_tuple
+            url = f"https://news.google.com/rss/search?q={query}&hl=en-IN&gl=IN&ceid=IN:en"
+            events_found = []
             
-            print(f"   [REAL-TIME] Event Found: {top_event['Name']}")
-            return {"Incident": "Event", "Details": top_event}
+            try:
+                response = requests.get(url, timeout=2) # Reduced timeout
+                if response.status_code == 200:
+                    root = ET.fromstring(response.content)
+                    
+                    # Fetch top 2 items per query
+                    for item in root.findall('./channel/item')[:2]:
+                        title = item.find('title').text
+                        link = item.find('link').text
+                        pubDate = item.find('pubDate').text
+                        
+                        # Enhanced Keyword Analysis for Impact
+                        impact = "Low"
+                        keywords_high = [
+                            "accident", "crash", "collision", "fatal", 
+                            "protest", "demonstration", "strike",
+                            "closed", "closure", "blocked", "gridlock",
+                            "severe", "storm", "flood", "landslide",
+                            "emergency", "evacuation", "match", "final"
+                        ]
+                        keywords_med = [
+                            "delay", "slow", "congestion", "jam",
+                            "maintenance", "repair", "construction",
+                            "diversion", "detour", "redirect",
+                            "crowd", "gathering", "procession", "concert",
+                            "rally", "visit"
+                        ]
+                        
+                        # Keywords to EXCLUDE
+                        keywords_exclude = [
+                            "market", "stock", "share", "bitcoin",
+                            "cricket score card", "movie review", "film review"
+                        ]
+                        
+                        lower_title = title.lower()
+                        
+                        # Skip irrelevant news
+                        if any(k in lower_title for k in keywords_exclude): 
+                            continue
+                        
+                        if any(k in lower_title for k in keywords_high): 
+                            impact = "High"
+                        elif any(k in lower_title for k in keywords_med): 
+                            impact = "Medium"
+                        else:
+                            # Skip low-impact news
+                            continue
+                        
+                        # Extract location from title
+                        location = f"{city}"
+                        mumbai_areas = [
+                            "Andheri", "Bandra", "Dadar", "Churchgate", "Colaba",
+                            "Juhu", "Powai", "Worli", "Marine Drive", "Fort",
+                            "Goregaon", "Malad", "Kandivali", "Borivali",
+                            "Thane", "Navi Mumbai", "Western Express", "Eastern Express",
+                            "Wankhede", "BKC", "Lower Parel", "Kurla"
+                        ]
+                        for area in mumbai_areas:
+                            if area.lower() in lower_title:
+                                location = f"{area}, Mumbai"
+                                break
+
+                        # Time Travel Logic: Adjust year to 2026 for simulation coherence
+                        try:
+                            dt = parsedate_to_datetime(pubDate)
+                            # Force year to 2026
+                            # Note: Feb 7 2025 is Fri. Feb 7 2026 is Sat.
+                            # We construct a new valid datetime, ignoring the original weekday in the string
+                            if dt.tzinfo:
+                                dt = dt.replace(year=2026)
+                            else:
+                                dt = dt.replace(year=2026)
+                            
+                            # Store as ISO string which is unambiguous and widely supported
+                            final_time_str = dt.isoformat()
+                        except:
+                            # Fallback if parsing fails (shouldn't happen often)
+                            final_time_str = pubDate.replace("2024", "2026").replace("2025", "2026")
+
+                        events_found.append({
+                            "Name": title,
+                            "Impact": impact,
+                            "Location": location,
+                            "AffectedAreas": [location],
+                            "Category": category,
+                            "Source": "Google News",
+                            "Link": link,
+                            "Time": final_time_str
+                        })
+            except Exception as e:
+                # print(f"   [Warning] Failed to fetch from category '{category}': {e}")
+                pass
+            return events_found
+
+        # Run fetch_rss in parallel
+        with ThreadPoolExecutor(max_workers=5) as executor:
+            future_to_query = {executor.submit(fetch_rss, qt): qt for qt in query_categories}
+            for future in as_completed(future_to_query):
+                try:
+                    events = future.result()
+                    # Avoid duplicates
+                    for e in events:
+                        if not any(exist['Name'] == e['Name'] for exist in all_events):
+                            all_events.append(e)
+                except Exception as exc:
+                    pass
+
+        # Sort by impact priority
+        all_events.sort(key=lambda x: (0 if x['Impact'] == 'High' else 1 if x['Impact'] == 'Medium' else 2))
+        
+        result = {"Incident": "None", "Events": []}
+        if all_events:
+            print(f"   [SUCCESS] Found {len(all_events)} relevant events")
+            result = {"Incident": "Multiple", "Events": all_events}
+        else:
+            print("   [INFO] No significant events detected.")
+        
+        # Update Cache
+        _EVENT_CACHE[city] = {
+            "timestamp": now,
+            "data": result
+        }
+        return result
 
     except Exception as e:
-        print(f"   [Warning] Scraping disruption ({e}). Accessing Cached Schedule...")
-
-    # 2. Backup / Fallback Database (Validated against User's Live Context)
-    print("   [INFO] Scraper limits reached. Using Validated Event Schedule (Today)...")
+        print(f"   [Error] Scraping failed: {e}")
+        # Return fallback or empty structure
+        return {"Incident": "None", "Events": []}
     
-    # Generic City Events
-    default_event = {
-        "Name": "T20 World Cup: India vs USA",
-        "Impact": "High",
-        "Location": "Wankhede Stadium (Live Screening)",
-        "AffectedAreas": ["Marine Drive", "Churchgate", "Colaba Causeway"],
-        "AltRoutes": ["P D'Mello Road", "Fort Area"]
-    }
-    
-    if context:
-        src = context.get('source', '')
-        dst = context.get('dest', '')
-        
-        # Simulated Localized Events
-        if "Andheri" in src or "Andheri" in dst:
-            return {"Incident": "Construction", "Details": {
-                "Name": "Metro Line 6 Girder Launch",
-                "Impact": "High",
-                "Location": "Andheri East (JVLR)",
-                "AffectedAreas": ["JVLR", "WEH Junction"],
-                "AltRoutes": ["SV Road", "Link Road"]
-            }}
-        if "Dadar" in src or "Dadar" in dst:
-             return {"Incident": "Religious Procession", "Details": {
-                "Name": "Local Procession",
-                "Impact": "Medium",
-                "Location": "Dadar TT Circle",
-                "AffectedAreas": ["Tilak Bridge", "Khodadad Circle"],
-                "AltRoutes": ["Eastern Express Highway", "Sion Bandra Link"]
-            }}
-            
-    events_db = {
-        "Mumbai": {
-            "Incident": "Event",
-            "Details": default_event
-        },
-        # ... other cities ...
-    }
-    
-    city_key = city.split(',')[0]
-    return events_db.get(city_key, {"Incident": "None", "Details": {
-        "Name": "No Major Events", "Impact": "Low", "Location": "N/A"
-    }})
 
 def get_event_impact_score(city="Mumbai"):
     """
-    Returns a float 0.0 to 1.0 representing event severity.
+    Returns a float 0.0 to 1.0 representing overall event severity.
+    Considers ALL events, not just one.
     """
     try:
         event_data = get_city_events(city)
-        details = event_data.get("Details", {})
-        impact = details.get("Impact", "Low")
+        events = event_data.get("Events", [])
         
-        if impact == "High": return 0.8
-        elif impact == "Medium": return 0.5
-        else: return 0.1
+        if not events:
+            return 0.0
+        
+        # Calculate weighted average based on all events
+        total_score = 0.0
+        for event in events:
+            impact = event.get("Impact", "Low")
+            if impact == "High": total_score += 0.8
+            elif impact == "Medium": total_score += 0.5
+            else: total_score += 0.1
+        
+        # Average and cap at 1.0
+        avg_score = min(total_score / len(events), 1.0)
+        return round(avg_score, 2)
     except:
         return 0.0
 

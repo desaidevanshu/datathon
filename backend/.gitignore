@@ -1,0 +1,11 @@
+
+__pycache__/
+*.pyc
+.gemini/
+.vscode/
+venv/
+env/
+*.log
+output_*.txt
+*.pkl
+*.pth
